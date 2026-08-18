@@ -60,6 +60,8 @@ cd /Users/vesper/Desktop/吃什么
 
 之后本地 `git push` 即自动部署。令牌由 GitHub 加密存储，不会出现在代码里；想停用就在 Railway 后台删掉该 token。
 
+> **云端个性化**：个人档案不会进仓库。云端部署后在 Railway → Variables 添加 `PROFILE_OVERRIDE`（JSON 字符串，结构同 `data.js` 顶部 `PROFILE`），`server.js` 会自动注入，手机端就按你的档案推荐；本地则用 `profile.local.js`（见「想自己改」）。
+
 - 免费额度：服务闲置 15 分钟后会休眠，打开页面时自动唤醒（冷启动几秒），不影响使用
 
 ### 方案 B：国内云服务器（腾讯云/阿里云轻量，稳定，约 ¥30-60/月）
