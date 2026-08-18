@@ -48,6 +48,18 @@ cd /Users/vesper/Desktop/吃什么
 ./deploy.sh        # 等价于 railway up --service chishenme --yes
 ```
 
+#### 自动部署（GitHub Actions，推送即部署）
+
+仓库内置了 `.github/workflows/deploy.yml`：每次 `git push` 到 `main` 分支，GitHub 会在云端自动执行 `railway up`，几分钟内云端更新，不用再手动部署（也可以到仓库 **Actions** 页手动点「Run workflow」触发）。
+
+**一次性配置（约 2 分钟）：**
+
+1. 打开 [Railway 后台](https://railway.app/dashboard) → 进入项目 **memo-inbox** → **Settings** → **Tokens**，创建一个 **Project Token**（环境选 `production`）
+2. 复制令牌，到 GitHub 仓库 **what-to-eat** → **Settings → Secrets and variables → Actions** → **New repository secret**
+3. Name 填 `RAILWAY_TOKEN`，Value 粘贴令牌，保存
+
+之后本地 `git push` 即自动部署。令牌由 GitHub 加密存储，不会出现在代码里；想停用就在 Railway 后台删掉该 token。
+
 - 免费额度：服务闲置 15 分钟后会休眠，打开页面时自动唤醒（冷启动几秒），不影响使用
 
 ### 方案 B：国内云服务器（腾讯云/阿里云轻量，稳定，约 ¥30-60/月）
@@ -91,6 +103,7 @@ AI key 配在**服务端**，页面上没有设置入口（key 不会出现在�
 
 ```
 吃什么/
+├── .github/workflows/deploy.yml  GitHub Actions 自动部署到 Railway（推送即部署）
 ├── index.html        页面（转盘 / 结果卡 / 对话 / 饮食记录 / 侧边栏导航）
 ├── style.css         样式 v4（小字号楷体风，全站柔和配色）
 ├── data.js           数据层：档案、13 扇区候选库（加餐/看冰箱隐藏）、健康红线、食谱库、食材清单、周报计算

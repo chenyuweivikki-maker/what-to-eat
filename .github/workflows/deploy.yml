@@ -1,0 +1,28 @@
+name: 部署到 Railway
+
+# 触发条件：push 到 main 分支；也可以手动在 Actions 页面点「Run workflow」
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: 部署 chishenme 服务
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 安装 Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: 部署到 Railway（服务 chishenme）
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: railway up --service chishenme --ci --yes
