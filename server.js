@@ -35,6 +35,15 @@ function send(res, code, text, headers) {
   res.end(text);
 }
 
+/* ---- 云端个人档案（PROFILE_OVERRIDE 环境变量，JSON 字符串）
+ * 个人数据不落盘、不进仓库：部署时在 Railway 的 Variables 里配 PROFILE_OVERRIDE，
+ * 这里读取后注入到 index.html，前端 data.js 会用它覆盖通用默认档案。 ---- */
+function getProfileOverride() {
+  const raw = process.env.PROFILE_OVERRIDE;
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch (e) { return null; }
+}
+
 /* ---- 静态文件（仅白名单扩展名，敏感文件一律拦截） ---- */
 const ALLOWED_EXT = ['.html', '.css', '.js', '.png', '.ico', '.svg', '.webp', '.jpg', '.jpeg', '.webmanifest'];
 const SENSITIVE_NAME = /^\.|\.key$|\.log$|\.pid$|^deepseek\.|^package\.json$|^railway\.json$|^start\.sh$|^deploy\.sh$|^\.gitignore$|^灵感收件箱/;
@@ -49,8 +58,22 @@ function serveStatic(req, res) {
   if (!ALLOWED_EXT.includes(ext) || SENSITIVE_NAME.test(base)) return send(res, 403, 'Forbidden');
   fs.readFile(filePath, (err, data) => {
     if (err) return send(res, 404, 'Not Found');
+    let body = data;
+    /* index.html：若配了 PROFILE_OVERRIDE（云端个人档案），注入脚本（放在 profile.local.js 之前：
+     * 本地存在 profile.local.js 时后者优先；云端没有该文件，用环境变量的档案）。 */
+    if (ext === '.html' && /index\.html$/.test(filePath)) {
+      const override = getProfileOverride();
+      if (override) {
+        const inject = '<script>window.__PROFILE_OVERRIDE__=' +
+          JSON.stringify(override).replace(/</g, '\\u003c') + ';</script>\n';
+        body = Buffer.from(
+          data.toString('utf8').replace('<script src="profile.local.js', inject + '<script src="profile.local.js'),
+          'utf8'
+        );
+      }
+    }
     /* no-cache：让手机浏览器/主屏幕 App 每次都校验最新版本，避免旧代码缓存 */
-    send(res, 200, data, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
+    send(res, 200, body, { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
   });
 }
 
