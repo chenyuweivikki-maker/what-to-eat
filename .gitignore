@@ -1,0 +1,10 @@
+# 敏感/临时文件（railway up 不上传）
+deepseek.key
+*.key
+server.log
+server.pid
+.DS_Store
+node_modules/
+
+# 别个项目（memo-inbox）的笔记，不随本仓库上传
+灵感收件箱-云端部署方法.txt

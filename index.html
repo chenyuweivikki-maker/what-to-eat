@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FFF6EE">
+<title>吃什么🍜 · 健康版</title>
+<link rel="icon" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="吃什么🍜">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="stylesheet" href="style.css?v=20260817b">
+</head>
+<body>
+
+<header>
+  <button id="btnMenu" class="icon-btn menu-btn" title="菜单" aria-label="菜单">☰</button>
+  <div class="logo">吃<span>什么</span>🍜<span class="logo-sub">少食多餐 · 健康减脂</span></div>
+</header>
+
+<!-- 侧边栏导航（手机端为抽屉） -->
+<nav id="sidebar">
+  <div class="sidebar-logo">吃什么🍜</div>
+  <button class="nav-item active" data-page="home">🎡 转盘</button>
+  <button class="nav-item" data-page="log">🍽️ 饮食记录</button>
+  <button class="nav-item" data-page="recipe">📖 食谱</button>
+  <button class="nav-item" data-page="chat">🤖 问问AI</button>
+  <div class="sidebar-foot">少食多餐 · 健康减脂<br>目标 110 斤</div>
+</nav>
+<div id="sidebarOverlay" class="sidebar-overlay hidden"></div>
+
+<main>
+  <!-- 页面①：首页 = 只有转盘 -->
+  <div class="page" id="page-home">
+    <div class="section-title" id="homeTitle">
+      <h2>🎡 不想动脑？转一下</h2>
+      <span id="slotBadge" class="slot-badge"></span>
+    </div>
+    <section class="card" id="wheelSection">
+      <div class="wheel-wrap">
+        <canvas id="wheelCanvas" width="640" height="640"></canvas>
+        <div class="pointer">▼</div>
+        <button id="btnSpin" class="spin-btn">转</button>
+      </div>
+      <p class="hint">转到什么吃什么 · 不满意就点「问问AI」 · 会按当前时段偏向推荐</p>
+    </section>
+
+    <section class="card result hidden" id="resultCard">
+      <div class="result-head">
+        <span id="resEmoji" class="res-emoji"></span>
+        <div>
+          <div id="resName" class="res-name"></div>
+          <div id="resMeta" class="res-meta"></div>
+        </div>
+      </div>
+      <div id="resSlotTip" class="res-slot-tip hidden"></div>
+      <div id="resPortion" class="res-portion"></div>
+      <div id="resHow" class="res-how hidden"></div>
+      <div id="resKcal" class="res-kcal"></div>
+      <ul id="resTips" class="res-tips"></ul>
+      <div id="resWhy" class="res-why"></div>
+      <div class="res-actions">
+        <button id="btnLogged" class="btn btn-primary">😋 就吃这个（记一笔）</button>
+        <button id="btnSkipped" class="btn btn-ghost">⏭ 没吃/跳过</button>
+        <button id="btnAskAI" class="btn btn-secondary">🤔 不满意，问问AI</button>
+        <button id="btnSpinAgain" class="btn btn-ghost">🔄 再转一次</button>
+      </div>
+      <details class="price hidden" id="priceCompare">
+        <summary>💰 点外卖前 30 秒比价</summary>
+        <ul>
+          <li>同一家店，美团 / 饿了么都搜一下，算「满减 + 配送费 + 包装费」总价再下单，常差 5~10 元</li>
+          <li>大额券常在平台会员日 / 周五，不着急就等等</li>
+          <li>备注写清：少油 / 酱料减半 / 无糖饮料</li>
+        </ul>
+      </details>
+      <details class="price hidden" id="recipeBox">
+        <summary>📖 查看食谱（食材 + 步骤）</summary>
+        <div id="recipeContent"></div>
+      </details>
+    </section>
+  </div>
+
+  <!-- 页面②：问问AI -->
+  <div class="page hidden" id="page-chat">
+    <section class="card" id="chatSection">
+      <h2>🤖 问问 AI</h2>
+      <div id="chatBox" class="chat-box"></div>
+
+      <div class="quick-label">先说说现在的状态：</div>
+      <div class="chip-group" id="chipsAppetite" data-key="appetite">
+        <span class="chip-label">胃口</span>
+        <button class="chip" data-val="很差">很差</button>
+        <button class="chip" data-val="一般">一般</button>
+        <button class="chip" data-val="不错">不错</button>
+      </div>
+      <div class="chip-group" id="chipsAmount" data-key="amount">
+        <span class="chip-label">饭量</span>
+        <button class="chip" data-val="少">少</button>
+        <button class="chip" data-val="中">中</button>
+        <button class="chip" data-val="多">多</button>
+      </div>
+      <div class="chip-group" id="chipsCook" data-key="cook">
+        <span class="chip-label">做饭</span>
+        <button class="chip" data-val="想">想自己做</button>
+        <button class="chip" data-val="不想">不想</button>
+        <button class="chip" data-val="都行">都行</button>
+      </div>
+      <div class="chip-group" id="chipsFridge" data-key="fridge" data-multi="1">
+        <span class="chip-label">冰箱有</span>
+        <button class="chip" data-val="鸡蛋">🥚鸡蛋</button>
+        <button class="chip" data-val="蔬菜">🥬蔬菜</button>
+        <button class="chip" data-val="肉类">🥩肉类</button>
+        <button class="chip" data-val="豆腐">豆腐</button>
+        <button class="chip" data-val="海鲜">🦐海鲜</button>
+        <button class="chip" data-val="主食">🍚主食</button>
+        <button class="chip" data-val="剩菜">剩菜</button>
+        <button class="chip" data-val="没有">都没有</button>
+        <button class="chip chip-add" id="btnAddFridge" type="button">➕ 自己加</button>
+      </div>
+      <div class="fridge-add-row hidden" id="fridgeAddRow">
+        <input id="fridgeInput" type="text" placeholder="家里现在有的，如：土豆、鸡胸肉、番茄" autocomplete="off">
+        <button id="btnFridgeAdd" class="btn btn-primary small">添加</button>
+      </div>
+
+      <div class="chat-input-row">
+        <input id="chatInput" type="text" placeholder="也可以直接说：想吃点带汤的 / 特别想吃炸鸡…" autocomplete="off">
+        <button id="btnSend" class="btn btn-primary">发送</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- 页面③：饮食记录 -->
+  <div class="page hidden" id="page-log">
+    <section class="card" id="logSection">
+      <div class="section-title">
+        <h2>🍽️ 饮食记录 <span class="sub">实际吃了就填一下，周报每周自动生成</span></h2>
+        <div class="log-actions">
+          <button id="btnHistory" class="btn btn-ghost small">📚 历史</button>
+          <button id="btnWeekly" class="btn btn-secondary small">本周小结</button>
+        </div>
+      </div>
+      <div class="chip-group" id="chipsMeal" data-key="meal">
+        <span class="chip-label">这顿是</span>
+        <button class="chip" data-val="早餐">早餐</button>
+        <button class="chip" data-val="午餐">午餐</button>
+        <button class="chip" data-val="晚餐">晚餐</button>
+        <button class="chip" data-val="加餐">加餐</button>
+        <button class="chip" data-val="放纵">🍩 放纵（奶茶甜品）</button>
+      </div>
+      <div class="manual-row">
+        <input id="logInput" type="text" placeholder="吃了啥？如「番茄炒蛋，350」或「苹果」" autocomplete="off">
+        <button id="btnLogAdd" class="btn btn-primary small">记</button>
+      </div>
+      <div class="weight-row">
+        <span class="chip-label">⚖️ 体重</span>
+        <input id="weightInput" type="text" placeholder="斤，如 118" inputmode="decimal" autocomplete="off">
+        <button id="btnWeightAdd" class="btn btn-primary small">记录</button>
+        <span id="weightStatus" class="weight-status"></span>
+      </div>
+      <div class="backup-row">
+        <button id="btnExport" class="btn btn-ghost small">📤 导出数据</button>
+        <button id="btnImport" class="btn btn-ghost small">📥 导入数据</button>
+        <input id="importFile" type="file" accept=".json,application/json" class="hidden">
+        <span class="weight-status">换设备/主屏幕 App 看不到数据时，用导出+导入迁移</span>
+      </div>
+      <div class="week-range" id="weekRangeLabel"></div>
+      <div id="todayLog"></div>
+    </section>
+  </div>
+
+  <!-- 页面：食谱 -->
+  <div class="page hidden" id="page-recipe">
+    <section class="card">
+      <div class="section-title">
+        <h2>📖 食谱 <span class="sub">自己做的菜 · 食材 + 步骤 + 时间</span></h2>
+      </div>
+      <div id="recipePage"></div>
+    </section>
+  </div>
+</main>
+
+<footer>少食多餐 · 健康减脂 · 目标 110 斤</footer>
+
+<!-- 周报弹窗 -->
+<div id="weeklyModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="weekly-head">
+      <button id="btnWeekPrev" class="btn btn-ghost small" title="上一周">‹</button>
+      <h3 id="weeklyTitle">📊 本周小结</h3>
+      <button id="btnWeekNext" class="btn btn-ghost small" title="下一周">›</button>
+    </div>
+    <div id="weeklyBody"></div>
+    <div class="weekly-sec">
+      <h4>🤖 智能分析</h4>
+      <div id="aiAnalysis"><div class="recipe-hint">点下面的按钮，AI 会分析本周摄入（热量结构、放纵频率、减脂建议）</div></div>
+    </div>
+    <div class="modal-actions">
+      <button id="btnAiAnalyze" class="btn btn-secondary small">🤖 智能分析摄入</button>
+      <button id="btnCloseWeekly" class="btn btn-primary">知道了</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="data.js?v=20260817b"></script>
+<script src="app.js?v=20260817b"></script>
+</body>
+</html>

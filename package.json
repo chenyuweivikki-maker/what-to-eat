@@ -1,0 +1,13 @@
+{
+  "name": "chishenme",
+  "version": "1.0.0",
+  "private": true,
+  "description": "吃什么 🍜 健康饮食助手（转盘 + 推荐 + 记录周报，纯前端 + 零依赖 Node 服务器）",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
