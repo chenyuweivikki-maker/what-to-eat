@@ -389,11 +389,11 @@
     const el = $('weightStatus');
     const ws = state.weights.slice().sort((a, b) => (a.date < b.date ? -1 : 1));
     const last = ws[ws.length - 1];
-    if (!last) { el.textContent = '记录体重后，周报会算离 110 斤还有多远'; return; }
-    const diff = Number(last.kg) - 110;
+    if (!last) { el.textContent = '记录体重后，周报会算离目标还有多远'; return; }
+    const diff = Number(last.kg) - PROFILE.goal * 2;
     el.textContent = diff <= 0
       ? `最近 ${last.kg} 斤 🎉 已到目标！`
-      : `最近 ${last.kg} 斤 · 离 110 斤还差 ${diff.toFixed(1)} 斤`;
+      : `最近 ${last.kg} 斤 · 离 ${PROFILE.goal * 2} 斤还差 ${diff.toFixed(1)} 斤`;
   }
   function addWeight() {
     const input = $('weightInput');
@@ -525,18 +525,19 @@
         <li>不健康食品：约 ${s.junkKcal} kcal（${s.junkCount} 次）</li>
         <li><b>合计：约 ${s.totalKcal} kcal</b></li>
       </ul></div>`;
+    const GOAL_JIN = PROFILE.goal * 2;   // 目标体重（斤），读自 PROFILE
     let goalHtml;
     if (s.latestWeight) {
-      const diff = s.latestWeight - 110;
+      const diff = s.latestWeight - GOAL_JIN;
       goalHtml = `
-      <div class="weekly-sec"><h4>🎯 目标进度（110 斤）</h4><ul>
+      <div class="weekly-sec"><h4>🎯 目标进度（${GOAL_JIN} 斤）</h4><ul>
         <li>最新体重：${s.latestWeight} 斤${s.weightDelta ? `（较上次 ${s.weightDelta > 0 ? '↑' : '↓'} ${Math.abs(s.weightDelta)} 斤）` : ''}</li>
         ${diff > 0
-          ? `<li>离 110 斤还差 <b>${diff.toFixed(1)} 斤</b>（约 ${Math.round(diff * 3850)} kcal 缺口；每周减 1 斤以内最稳，别着急）</li>`
-          : '<li>🎉 已经到 110 斤或以下了！</li>'}
+          ? `<li>离 ${GOAL_JIN} 斤还差 <b>${diff.toFixed(1)} 斤</b>（约 ${Math.round(diff * 3850)} kcal 缺口；每周减 1 斤以内最稳，别着急）</li>`
+          : `<li>🎉 已经到 ${GOAL_JIN} 斤或以下了！</li>`}
       </ul></div>`;
     } else {
-      goalHtml = `<div class="weekly-sec"><h4>🎯 目标进度（110 斤）</h4><ul><li>还没记录过体重：去「今天吃了什么」页面的 ⚖️ 体重 行填一下，这里就算离 110 斤多远</li></ul></div>`;
+      goalHtml = `<div class="weekly-sec"><h4>🎯 目标进度（${GOAL_JIN} 斤）</h4><ul><li>还没记录过体重：去「今天吃了什么」页面的 ⚖️ 体重 行填一下，这里就算离 ${GOAL_JIN} 斤多远</li></ul></div>`;
     }
 
     /* 该周记录明细（只读，按日期分组） */
@@ -611,7 +612,7 @@
     const prompt = [
       '以下是本周（周一起）的饮食记录与统计，请用 150 字以内做一份「摄入智能分析」：',
       `- 本周热量估算：正餐约 ${s.mealKcal} kcal（${s.eaten - s.junkCount} 餐），放纵约 ${s.junkKcal} kcal（${s.junkCount} 次），合计约 ${s.totalKcal} kcal`,
-      `- 体重：${s.latestWeight ? `${s.latestWeight} 斤（${(s.latestWeight / 2).toFixed(1)} kg）${s.weightDelta ? `（较上次 ${s.weightDelta > 0 ? '↑' : '↓'} ${Math.abs(s.weightDelta)} 斤）` : ''}` : '未记录'}，目标 110 斤（55 kg）。注意：体重统一按「斤」计算，1 kg = 2 斤，不要混用单位`,
+      `- 体重：${s.latestWeight ? `${s.latestWeight} 斤（${(s.latestWeight / 2).toFixed(1)} kg）${s.weightDelta ? `（较上次 ${s.weightDelta > 0 ? '↑' : '↓'} ${Math.abs(s.weightDelta)} 斤）` : ''}` : '未记录'}，目标 ${PROFILE.goal * 2} 斤（${PROFILE.goal} kg）。注意：体重统一按「斤」计算，1 kg = 2 斤，不要混用单位`,
       `- 记录明细：\n${entries || '（无）'}`,
       '要求：点评蛋白质够不够、放纵频率是否合适、热量是否符合减脂方向，给出 2~3 条下周可执行的小建议；语气温柔不批评。'
     ].join('\n');
